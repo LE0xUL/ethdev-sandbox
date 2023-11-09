@@ -11,7 +11,7 @@ Once cloned the repo, simply execute: `./run-sandbox.sh`
 The script build and run the docker.
 
 ## how to bulid
-``
+```
 docker build \
     --build-arg UID=$(id -u) \
     --build-arg GID=$(id -g) \
@@ -29,7 +29,7 @@ touch .bash_history
 ```
 
 The docker needs to have some special config to run:
-``
+```
 docker run  \
 	-v $(pwd):$(pwd) \
 	-v $(pwd)/.brownie:/home/$USER/.brownie \
