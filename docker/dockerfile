@@ -1,0 +1,55 @@
+FROM ubuntu:22.04
+
+ENV TZ=US/Eastern
+
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+RUN apt-get update && \
+    apt-get -y upgrade && \
+    apt-get install -qq  -y \
+	ca-certificates \
+	curl \
+	git \
+	gnupg \
+    	vim \
+	wget \
+	&& \
+    apt-get autoremove && \            
+    apt-get autoclean
+
+# Remove old nodejs
+RUN apt remove -y nodejs nodejs-doc && \
+    apt autoremove -y && \
+    apt autoclean
+
+# Install nodejs 20.x LTS
+RUN mkdir -p /etc/apt/keyrings && \
+    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | \
+    gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
+    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" \
+    > /etc/apt/sources.list.d/nodesource.list && \
+    apt-get update && \
+    apt-get install -y nodejs
+
+#RUN npm install -g hardhat
+
+# Install brownie enviroment
+RUN apt install -y python3-dev pip pipx
+RUN cd /tmp && \
+    git clone https://github.com/eth-brownie/brownie.git && \
+    cd brownie && \
+    python3 setup.py install
+
+RUN npm install -g ganache
+
+ARG UID=$UID
+ARG GID=$GID
+ARG USER=$USER
+ARG GROUP=$GROUP
+
+RUN groupadd -g $GID $GROUP
+RUN useradd -ms /bin/bash -u $UID -g $GID $USER
+
+USER $USER
+
+ENTRYPOINT /bin/bash
